@@ -159,7 +159,7 @@ export function getTodos(userId: string, date: string): Todo[] {
   }
 }
 
-export function createTodo(userId: string, date: string, text: string): Todo {
+export function createTodo(userId: string, date: string, text: string, time?: string): Todo {
   const todos = getAllTodos()
 
   const newTodo: Todo = {
@@ -169,12 +169,24 @@ export function createTodo(userId: string, date: string, text: string): Todo {
     text,
     completed: false,
     createdAt: new Date().toISOString(),
+    time,
   }
 
   todos.push(newTodo)
   localStorage.setItem(TODOS_KEY, JSON.stringify(todos))
 
   return newTodo
+}
+
+export function updateTodo(todoId: string, updates: Partial<Pick<Todo, "text" | "time">>): void {
+  const todos = getAllTodos()
+  const todo = todos.find((t) => t.id === todoId)
+
+  if (todo) {
+    if (updates.text !== undefined) todo.text = updates.text
+    if (updates.time !== undefined) todo.time = updates.time
+    localStorage.setItem(TODOS_KEY, JSON.stringify(todos))
+  }
 }
 
 export function toggleTodo(todoId: string) {

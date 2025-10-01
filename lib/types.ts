@@ -29,6 +29,7 @@ export interface Todo {
   text: string
   completed: boolean
   createdAt: string
+  time?: string
 }
 
 export interface Event {
@@ -37,6 +38,7 @@ export interface Event {
   date: string
   title: string
   createdAt: string
+  note?: string
 }
 
 export interface StreakInfo {

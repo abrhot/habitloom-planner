@@ -7,15 +7,17 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { Challenge, StreakInfo } from "@/lib/types"
 import { Archive, Flame } from "lucide-react"
+import { ConsistencyGrid } from "./consistency-grid"
 
 interface ChallengeCardProps {
   challenge: Challenge
-  streak?: StreakInfo // Made streak optional to handle undefined cases
+  streak?: StreakInfo
   onArchive: (id: string) => void
   onClick: (id: string) => void
+  showGrid?: boolean
 }
 
-export function ChallengeCard({ challenge, streak, onArchive, onClick }: ChallengeCardProps) {
+export function ChallengeCard({ challenge, streak, onArchive, onClick, showGrid = false }: ChallengeCardProps) {
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
 
   const currentStreak = streak?.current ?? 0
@@ -55,7 +57,7 @@ export function ChallengeCard({ challenge, streak, onArchive, onClick }: Challen
 
       {showArchiveConfirm && <p className="text-xs text-destructive mb-2">Click again to confirm archive</p>}
 
-      <div className="flex items-center gap-4 text-sm">
+      <div className="flex items-center gap-4 text-sm mb-3">
         <div className="flex items-center gap-1">
           <Flame className="h-4 w-4 text-orange-500" />
           <span className="font-medium">{currentStreak}</span>
@@ -63,6 +65,12 @@ export function ChallengeCard({ challenge, streak, onArchive, onClick }: Challen
         </div>
         {longestStreak > 0 && <div className="text-muted-foreground">Best: {longestStreak}</div>}
       </div>
+
+      {showGrid && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <ConsistencyGrid challengeId={challenge.id} color={challenge.color} />
+        </div>
+      )}
     </Card>
   )
 }

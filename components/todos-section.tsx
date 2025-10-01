@@ -81,7 +81,7 @@ export function TodosSection({ userId, currentDate }: TodosSectionProps) {
 
       <div className="space-y-3">
         {todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} onToggle={handleToggle} onDelete={handleDelete} />
+          <TodoItem key={todo.id} todo={todo} onToggle={handleToggle} onDelete={handleDelete} onUpdate={loadTodos} />
         ))}
 
         {showInput && (
