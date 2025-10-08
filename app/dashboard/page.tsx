@@ -12,7 +12,6 @@ import { QuoteOfDay } from "@/components/quote-of-day"
 import { WelcomeModal } from "@/components/welcome-modal"
 import { ChallengeCard } from "@/components/challenge-card"
 import { ChallengeDetailModal } from "@/components/challenge-detail-modal"
-import { EventCountdown } from "@/components/event-countdown"
 import { Plus, Calendar, CheckSquare, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -84,23 +83,34 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back, {user.name}</h1>
             <p className="text-muted-foreground">Track your habits and stay consistent</p>
           </div>
 
           <QuoteOfDay />
 
-          <div className="grid gap-4 md:grid-cols-2 mb-6">
-            <Card className="p-6">
+          <div className="flex justify-start">
+            <Button
+              onClick={() => setShowChallengeForm(true)}
+              size="lg"
+              className="hover:opacity-90 transition-opacity shadow-sm"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              New Challenge
+            </Button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="p-6 border shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold text-foreground">Today's Tasks</h2>
+                  <CheckSquare className="w-5 h-5" />
+                  <h2 className="text-lg font-semibold">Today's Tasks</h2>
                 </div>
                 <Link href="/todos">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="hover:bg-secondary">
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -111,11 +121,11 @@ export default function DashboardPage() {
                     <span className="text-muted-foreground">
                       {completedTodos} of {totalTodos} completed
                     </span>
-                    <span className="font-medium text-primary">{Math.round((completedTodos / totalTodos) * 100)}%</span>
+                    <span className="font-medium">{Math.round((completedTodos / totalTodos) * 100)}%</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
+                  <div className="w-full bg-secondary rounded-full h-2">
                     <div
-                      className="bg-primary h-full rounded-full transition-all"
+                      className="bg-foreground h-full rounded-full transition-all"
                       style={{ width: `${(completedTodos / totalTodos) * 100}%` }}
                     />
                   </div>
@@ -124,7 +134,7 @@ export default function DashboardPage() {
                       <div key={todo.id} className="flex items-center gap-2 text-sm">
                         <div
                           className={`w-4 h-4 rounded border-2 flex-shrink-0 ${
-                            todo.completed ? "bg-primary border-primary" : "border-muted-foreground"
+                            todo.completed ? "bg-foreground border-foreground" : "border-muted-foreground"
                           }`}
                         />
                         <span className={todo.completed ? "line-through text-muted-foreground" : ""}>{todo.text}</span>
@@ -134,10 +144,10 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-6">
                   <p className="text-sm text-muted-foreground mb-3">No tasks for today</p>
                   <Link href="/todos">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="hover:bg-secondary bg-transparent">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Task
                     </Button>
@@ -146,32 +156,53 @@ export default function DashboardPage() {
               )}
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 border shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  <h2 className="text-lg font-semibold text-foreground">Today's Events</h2>
+                  <Calendar className="w-5 h-5" />
+                  <h2 className="text-lg font-semibold">Upcoming Events</h2>
                 </div>
                 <Link href="/events">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="hover:bg-secondary">
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </div>
-              {todayEvents.length > 0 ? (
-                <div className="space-y-3 max-h-40 overflow-y-auto">
-                  {todayEvents.map((event) => (
-                    <div key={event.id} className="bg-secondary/50 rounded-lg p-3 border border-border">
-                      <h3 className="font-medium text-sm">{event.title}</h3>
-                      {event.note && <p className="text-xs text-muted-foreground mt-1">{event.note}</p>}
+              {events.length > 0 ? (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {events.slice(0, 5).map((event) => (
+                    <div
+                      key={event.id}
+                      className="rounded-lg p-3 border transition-colors hover:bg-secondary/50"
+                      style={{
+                        backgroundColor: `${event.color}15`,
+                        borderColor: `${event.color}40`,
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm truncate">{event.title}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">{event.date}</p>
+                          {event.note && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{event.note}</p>
+                          )}
+                        </div>
+                        <div
+                          className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5"
+                          style={{ backgroundColor: event.color }}
+                        />
+                      </div>
                     </div>
                   ))}
+                  {events.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-2">+{events.length - 5} more events</p>
+                  )}
                 </div>
               ) : (
-                <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-3">No events scheduled for today</p>
+                <div className="text-center py-6">
+                  <p className="text-sm text-muted-foreground mb-3">No events scheduled</p>
                   <Link href="/events">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="hover:bg-secondary bg-transparent">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Event
                     </Button>
@@ -181,46 +212,33 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
-            <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-foreground">Your Challenges</h2>
-                <Button
-                  onClick={() => setShowChallengeForm(true)}
-                  size="sm"
-                  className="hover:opacity-90 transition-opacity"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  New Challenge
-                </Button>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {challenges.length === 0 ? (
-                  <div className="col-span-2 bg-card rounded-lg border border-border p-8 text-center">
-                    <p className="text-muted-foreground mb-4">
-                      No challenges yet. Create your first challenge to get started!
-                    </p>
-                    <Button onClick={() => setShowChallengeForm(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Challenge
-                    </Button>
-                  </div>
-                ) : (
-                  challenges.map((challenge) => (
-                    <ChallengeCard
-                      key={challenge.id}
-                      challenge={challenge}
-                      streak={calculateStreak(challenge.id)}
-                      onArchive={handleArchive}
-                      onClick={() => setSelectedChallenge(challenge.id)}
-                      showGrid={true}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Your Challenges</h2>
 
-            <EventCountdown events={events} />
+            {challenges.length === 0 ? (
+              <Card className="p-8 text-center border shadow-sm">
+                <p className="text-muted-foreground mb-4">
+                  No challenges yet. Create your first challenge to get started!
+                </p>
+                <Button onClick={() => setShowChallengeForm(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Challenge
+                </Button>
+              </Card>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {challenges.map((challenge) => (
+                  <ChallengeCard
+                    key={challenge.id}
+                    challenge={challenge}
+                    streak={calculateStreak(challenge.id)}
+                    onArchive={handleArchive}
+                    onClick={() => setSelectedChallenge(challenge.id)}
+                    showGrid={true}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
