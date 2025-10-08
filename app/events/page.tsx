@@ -14,6 +14,17 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 
+const EVENT_COLORS = [
+  { name: "Blue", value: "#3b82f6" },
+  { name: "Purple", value: "#a855f7" },
+  { name: "Pink", value: "#ec4899" },
+  { name: "Red", value: "#ef4444" },
+  { name: "Orange", value: "#f97316" },
+  { name: "Yellow", value: "#eab308" },
+  { name: "Green", value: "#22c55e" },
+  { name: "Teal", value: "#14b8a6" },
+]
+
 export default function EventsPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
@@ -21,6 +32,7 @@ export default function EventsPage() {
   const [newEventTitle, setNewEventTitle] = useState("")
   const [newEventDate, setNewEventDate] = useState("")
   const [newEventNote, setNewEventNote] = useState("")
+  const [newEventColor, setNewEventColor] = useState(EVENT_COLORS[0].value)
   const [selectedDate, setSelectedDate] = useState<string>("")
 
   useEffect(() => {
@@ -44,11 +56,13 @@ export default function EventsPage() {
       title: newEventTitle.trim(),
       date: newEventDate,
       note: newEventNote.trim() || undefined,
+      color: newEventColor,
     })
 
     setNewEventTitle("")
     setNewEventDate("")
     setNewEventNote("")
+    setNewEventColor(EVENT_COLORS[0].value)
     loadEvents(user.id)
   }
 
@@ -117,11 +131,15 @@ export default function EventsPage() {
                       {selectedDateEvents.map((event) => (
                         <div
                           key={event.id}
-                          className="bg-secondary/50 rounded-lg p-4 border border-border hover:border-primary/30 transition-colors"
+                          className="rounded-lg p-4 border-l-4 hover:shadow-md transition-all"
+                          style={{
+                            borderLeftColor: event.color || "#3b82f6",
+                            backgroundColor: `${event.color || "#3b82f6"}10`,
+                          }}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-foreground">{event.title}</h4>
+                              <h4 className="font-semibold text-foreground">{event.title}</h4>
                               {event.note && <p className="text-sm text-muted-foreground mt-1">{event.note}</p>}
                             </div>
                             <Button
@@ -145,7 +163,6 @@ export default function EventsPage() {
 
             {/* Add Event Form and Upcoming Events */}
             <div className="space-y-6">
-              {/* Add Event Form */}
               <Card className="p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Plus className="w-5 h-5" />
@@ -171,6 +188,25 @@ export default function EventsPage() {
                     />
                   </div>
                   <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Color</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {EVENT_COLORS.map((color) => (
+                        <button
+                          key={color.value}
+                          type="button"
+                          onClick={() => setNewEventColor(color.value)}
+                          className={`h-10 rounded-lg border-2 transition-all hover:scale-105 ${
+                            newEventColor === color.value
+                              ? "border-foreground ring-2 ring-offset-2 ring-primary"
+                              : "border-border"
+                          }`}
+                          style={{ backgroundColor: color.value }}
+                          title={color.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Note (Optional)</label>
                     <Textarea
                       value={newEventNote}
@@ -191,7 +227,6 @@ export default function EventsPage() {
                 </div>
               </Card>
 
-              {/* Upcoming Events List */}
               <Card className="p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Clock className="w-5 h-5" />
@@ -204,19 +239,29 @@ export default function EventsPage() {
                     sortedEvents.slice(0, 5).map((event) => (
                       <div
                         key={event.id}
-                        className="bg-secondary/50 rounded-lg p-3 border border-border hover:border-primary/30 transition-colors cursor-pointer"
+                        className="rounded-lg p-3 border-l-4 hover:shadow-md transition-all cursor-pointer"
+                        style={{
+                          borderLeftColor: event.color || "#3b82f6",
+                          backgroundColor: `${event.color || "#3b82f6"}10`,
+                        }}
                         onClick={() => setSelectedDate(event.date)}
                       >
                         <h3 className="font-medium text-sm">{event.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(event.date + "T00:00:00").toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
-                        <div className="flex items-center gap-1 mt-1 text-xs text-primary">
-                          <Clock className="w-3 h-3" />
-                          {getTimeUntilEvent(event.date)}
+                        {event.note && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{event.note}</p>}
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(event.date + "T00:00:00").toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
+                          <div
+                            className="flex items-center gap-1 text-xs font-medium"
+                            style={{ color: event.color || "#3b82f6" }}
+                          >
+                            <Clock className="w-3 h-3" />
+                            {getTimeUntilEvent(event.date)}
+                          </div>
                         </div>
                       </div>
                     ))

@@ -260,6 +260,7 @@ export function addEvent(
     title: string
     date: string
     note?: string
+    color?: string
   },
 ): Event {
   const events = getAllEvents()
@@ -270,6 +271,7 @@ export function addEvent(
     date: eventData.date,
     title: eventData.title,
     note: eventData.note,
+    color: eventData.color,
     createdAt: new Date().toISOString(),
   }
 

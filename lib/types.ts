@@ -39,6 +39,7 @@ export interface Event {
   title: string
   createdAt: string
   note?: string
+  color?: string
 }
 
 export interface StreakInfo {

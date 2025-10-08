@@ -112,7 +112,6 @@ export function Calendar({ events, onDateClick, selectedDate }: CalendarProps) {
         ))}
       </div>
 
-      {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-2">
         {calendarDays.map((day, index) => {
           if (day === null) {
@@ -129,23 +128,37 @@ export function Calendar({ events, onDateClick, selectedDate }: CalendarProps) {
               key={day}
               onClick={() => onDateClick(formatDateString(day))}
               className={`
-                aspect-square p-2 rounded-lg border-2 transition-all
-                hover:border-primary hover:bg-primary/5
-                ${today ? "border-primary bg-primary/10" : "border-transparent"}
-                ${selected ? "bg-primary text-primary-foreground border-primary" : ""}
-                ${!today && !selected ? "hover:bg-secondary" : ""}
+                min-h-[100px] p-2 rounded-lg border-2 transition-all
+                hover:border-primary hover:shadow-md
+                ${today ? "border-primary bg-primary/5" : "border-border"}
+                ${selected ? "ring-2 ring-primary ring-offset-2" : ""}
+                ${!today && !selected ? "hover:bg-secondary/50" : ""}
               `}
             >
-              <div className="flex flex-col items-center justify-center h-full">
-                <span className={`text-sm font-medium ${selected ? "text-primary-foreground" : ""}`}>{day}</span>
+              <div className="flex flex-col h-full">
+                <span
+                  className={`text-sm font-semibold mb-1 ${today ? "text-primary" : "text-foreground"} ${selected ? "text-primary" : ""}`}
+                >
+                  {day}
+                </span>
                 {hasEvents && (
-                  <div className="flex gap-0.5 mt-1">
-                    {dayEvents.slice(0, 3).map((_, i) => (
+                  <div className="flex-1 space-y-1 overflow-hidden">
+                    {dayEvents.slice(0, 3).map((event) => (
                       <div
-                        key={i}
-                        className={`w-1 h-1 rounded-full ${selected ? "bg-primary-foreground" : "bg-primary"}`}
-                      />
+                        key={event.id}
+                        className="text-left text-xs px-1.5 py-0.5 rounded truncate"
+                        style={{
+                          backgroundColor: event.color || "#3b82f6",
+                          color: "white",
+                        }}
+                        title={`${event.title}${event.note ? ` - ${event.note}` : ""}`}
+                      >
+                        {event.title}
+                      </div>
                     ))}
+                    {dayEvents.length > 3 && (
+                      <div className="text-xs text-muted-foreground px-1.5">+{dayEvents.length - 3} more</div>
+                    )}
                   </div>
                 )}
               </div>
