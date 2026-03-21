@@ -1,62 +1,56 @@
-import type { User } from "./types"
+import { createClient } from "./supabase/client"
 
-const STORAGE_KEY = "habitloom_user"
+export async function signUp(email: string, password: string, name: string) {
+  const supabase = createClient()
 
-export function getCurrentUser(): User | null {
-  if (typeof window === "undefined") return null
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { name },
+      emailRedirectTo: `${window.location.origin}/dashboard`,
+    },
+  })
 
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored) return null
-
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return null
-  }
+  if (error) throw new Error(error.message)
+  return data.user
 }
 
-export function login(email: string, password: string): User | null {
-  // Mock login - in production this would call an API
-  const users = getStoredUsers()
-  const user = users.find((u) => u.email === email)
+export async function signIn(email: string, password: string) {
+  const supabase = createClient()
 
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
+
+  if (error) throw new Error(error.message)
+  return data.user
+}
+
+export async function signOut() {
+  const supabase = createClient()
+  await supabase.auth.signOut()
+}
+
+export async function getCurrentUser() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
-  return user
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
+
+  return profile
+    ? { id: profile.id, email: profile.email, name: profile.name, createdAt: profile.created_at }
+    : null
 }
 
-export function register(email: string, password: string, name: string): User {
-  // Mock registration - in production this would call an API
-  const users = getStoredUsers()
-
-  const newUser: User = {
-    id: crypto.randomUUID(),
-    email,
-    name,
-    createdAt: new Date().toISOString(),
-  }
-
-  users.push(newUser)
-  localStorage.setItem("habitloom_users", JSON.stringify(users))
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser))
-
-  return newUser
-}
-
-export function logout() {
-  localStorage.removeItem(STORAGE_KEY)
-}
-
-function getStoredUsers(): User[] {
-  if (typeof window === "undefined") return []
-
-  const stored = localStorage.getItem("habitloom_users")
-  if (!stored) return []
-
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return []
-  }
+export async function getSession() {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
 }

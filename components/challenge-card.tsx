@@ -1,12 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { Challenge, StreakInfo } from "@/lib/types"
-import { Archive, Flame } from "lucide-react"
+import { Archive } from "lucide-react"
 import { ConsistencyGrid } from "./consistency-grid"
 
 interface ChallengeCardProps {
@@ -18,59 +16,71 @@ interface ChallengeCardProps {
 }
 
 export function ChallengeCard({ challenge, streak, onArchive, onClick, showGrid = false }: ChallengeCardProps) {
-  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
+  const [confirmArchive, setConfirmArchive] = useState(false)
 
-  const currentStreak = streak?.current ?? 0
-  const longestStreak = streak?.longest ?? 0
+  const current = streak?.current ?? 0
+  const longest = streak?.longest ?? 0
 
   const handleArchive = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (showArchiveConfirm) {
+    if (confirmArchive) {
       onArchive(challenge.id)
     } else {
-      setShowArchiveConfirm(true)
-      setTimeout(() => setShowArchiveConfirm(false), 3000)
+      setConfirmArchive(true)
+      setTimeout(() => setConfirmArchive(false), 3000)
     }
   }
 
   return (
-    <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => onClick(challenge.id)}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div
-            className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ backgroundColor: challenge.color }}
-            aria-hidden="true"
-          />
-          <h3 className="font-medium truncate">{challenge.title}</h3>
+    <div
+      className="section-box card-hover overflow-hidden cursor-pointer group"
+      onClick={() => onClick(challenge.id)}
+    >
+      {/* Top accent bar */}
+      <div className="h-1 rounded-t-lg" style={{ backgroundColor: challenge.color }} />
+
+      <div className="p-4">
+        {/* Header row */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0 pr-2">
+            <h3 className="text-sm font-semibold text-foreground truncate">{challenge.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Since {new Date(challenge.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleArchive}
+            className={`h-7 w-7 flex-shrink-0 transition-all ${
+              confirmArchive
+                ? "text-destructive bg-destructive/10 opacity-100"
+                : "text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground"
+            }`}
+            title={confirmArchive ? "Click again to archive" : "Archive"}
+          >
+            <Archive className="h-3.5 w-3.5" />
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleArchive}
-          className="h-8 w-8 flex-shrink-0 text-muted-foreground hover:text-foreground"
-        >
-          <Archive className="h-4 w-4" />
-          <span className="sr-only">Archive challenge</span>
-        </Button>
+
+        {/* Streak numbers */}
+        <div className="flex gap-3 mb-3">
+          <div className="flex-1 bg-secondary rounded-md px-3 py-2">
+            <p className="text-lg font-semibold text-foreground tabular-nums leading-none">{current}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">Streak</p>
+          </div>
+          <div className="flex-1 bg-secondary rounded-md px-3 py-2">
+            <p className="text-lg font-semibold text-foreground tabular-nums leading-none">{longest}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">Best</p>
+          </div>
+        </div>
+
+        {showGrid && (
+          <div className="pt-3 border-t border-border">
+            <ConsistencyGrid challengeId={challenge.id} color={challenge.color} />
+          </div>
+        )}
       </div>
-
-      {showArchiveConfirm && <p className="text-xs text-destructive mb-2">Click again to confirm archive</p>}
-
-      <div className="flex items-center gap-4 text-sm mb-3">
-        <div className="flex items-center gap-1">
-          <Flame className="h-4 w-4 text-orange-500" />
-          <span className="font-medium">{currentStreak}</span>
-          <span className="text-muted-foreground">day streak</span>
-        </div>
-        {longestStreak > 0 && <div className="text-muted-foreground">Best: {longestStreak}</div>}
-      </div>
-
-      {showGrid && (
-        <div className="mt-4 pt-4 border-t border-border">
-          <ConsistencyGrid challengeId={challenge.id} color={challenge.color} />
-        </div>
-      )}
-    </Card>
+    </div>
   )
 }

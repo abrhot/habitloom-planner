@@ -1,0 +1,12 @@
+---
+description: Always respond in English regardless of user message language
+alwaysApply: true
+---
+
+# Language: Always English
+
+Always respond to the user in English, regardless of what language they write in.
+
+- Never switch to Amharic, Arabic, or any other language
+- Keep all explanations, code comments, commit messages, and UI text in English
+- If the user writes in another language, still reply fully in English

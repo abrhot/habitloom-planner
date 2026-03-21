@@ -1,17 +1,27 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Plus_Jakarta_Sans, DM_Serif_Display } from "next/font/google"
 import { Suspense } from "react"
+import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
-const inter = Inter({
+const jakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+})
+
+const dmSerif = DM_Serif_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: "400",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
-  title: "Habitloom - Daily Planner & Consistency Tracker",
-  description: "A minimal daily planner and consistency tracker to help you build lasting habits",
+  title: "Habitloom — Daily Planner & Habit Tracker",
+  description: "Build lasting habits with daily tracking, task management, and event planning.",
   generator: "v0.app",
 }
 
@@ -21,9 +31,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${inter.variable} antialiased`}>
-        <Suspense fallback={null}>{children}</Suspense>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${jakartaSans.variable} ${dmSerif.variable} font-sans antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={null}>{children}</Suspense>
+        </ThemeProvider>
       </body>
     </html>
   )

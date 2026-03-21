@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,87 +14,80 @@ interface ChallengeFormProps {
 }
 
 const PRESET_COLORS = [
-  "#ef4444", // red
-  "#f97316", // orange
-  "#f59e0b", // amber
-  "#eab308", // yellow
-  "#84cc16", // lime
-  "#22c55e", // green
-  "#10b981", // emerald
-  "#14b8a6", // teal
-  "#06b6d4", // cyan
-  "#0ea5e9", // sky
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#a855f7", // purple
-  "#d946ef", // fuchsia
-  "#ec4899", // pink
+  "#ef4444","#f97316","#f59e0b","#eab308",
+  "#84cc16","#22c55e","#10b981","#14b8a6",
+  "#06b6d4","#0ea5e9","#3b82f6","#6366f1",
+  "#8b5cf6","#a855f7","#d946ef","#ec4899",
 ]
 
 export function ChallengeForm({ onSubmit, onCancel }: ChallengeFormProps) {
   const [title, setTitle] = useState("")
-  const [selectedColor, setSelectedColor] = useState(PRESET_COLORS[0])
+  const [color, setColor] = useState(PRESET_COLORS[11])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (title.trim()) {
-      onSubmit(title.trim(), selectedColor)
-    }
+    if (title.trim()) onSubmit(title.trim(), color)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md p-6 relative">
-        <button
-          onClick={onCancel}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <X className="h-5 w-5" />
-          <span className="sr-only">Close</span>
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onCancel} />
+      <Card className="relative w-full max-w-sm p-6 shadow-elevated animate-in-up z-10 rounded-lg">
 
-        <h2 className="text-xl font-semibold mb-6">Create a new challenge</h2>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-semibold">New Challenge</h2>
+          <Button variant="ghost" size="icon" onClick={onCancel} className="h-7 w-7">
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Challenge name</Label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="title" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Challenge Name
+            </Label>
             <Input
               id="title"
-              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Morning meditation"
+              placeholder="e.g. Morning meditation, Daily run..."
               required
               autoFocus
+              className="h-10 text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Choose a color</Label>
-            <div className="grid grid-cols-8 gap-2">
-              {PRESET_COLORS.map((color) => (
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Color</Label>
+              <div className="w-5 h-5 rounded" style={{ backgroundColor: color }} />
+            </div>
+            <div className="grid grid-cols-8 gap-1.5">
+              {PRESET_COLORS.map((c) => (
                 <button
-                  key={color}
+                  key={c}
                   type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className="w-8 h-8 rounded-md transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  style={{
-                    backgroundColor: color,
-                    border: selectedColor === color ? "3px solid black" : "none",
-                  }}
-                  aria-label={`Select color ${color}`}
+                  onClick={() => setColor(c)}
+                  className={`w-8 h-8 rounded transition-all hover:scale-110 ${
+                    color === c ? "ring-2 ring-offset-1 ring-foreground scale-110" : ""
+                  }`}
+                  style={{ backgroundColor: c }}
+                  aria-label={c}
                 />
               ))}
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 bg-transparent">
+          <div className="flex gap-2 pt-1">
+            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 h-9 text-sm">
               Cancel
             </Button>
-            <Button type="submit" className="flex-1">
-              Create challenge
+            <Button
+              type="submit"
+              disabled={!title.trim()}
+              className="flex-1 h-9 text-sm gradient-primary text-primary-foreground hover:opacity-90"
+            >
+              Create
             </Button>
           </div>
         </form>

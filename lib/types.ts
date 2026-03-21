@@ -22,6 +22,8 @@ export interface ChallengeDay {
   note?: string
 }
 
+export type TodoPriority = "low" | "medium" | "high"
+
 export interface Todo {
   id: string
   userId: string
@@ -30,6 +32,7 @@ export interface Todo {
   completed: boolean
   createdAt: string
   time?: string
+  priority?: TodoPriority
 }
 
 export interface Event {
@@ -40,10 +43,13 @@ export interface Event {
   createdAt: string
   note?: string
   color?: string
+  time?: string
 }
+
 
 export interface StreakInfo {
   current: number
   longest: number
+  total: number
   lastCompletedDate?: string
 }

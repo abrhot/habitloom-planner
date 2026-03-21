@@ -16,27 +16,29 @@ export default function TodosPage() {
   const [currentDate, setCurrentDate] = useState(getToday())
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (!currentUser) {
-      router.push("/")
-      return
-    }
-    setUser(currentUser)
+    getCurrentUser().then((currentUser) => {
+      if (!currentUser) { router.push("/"); return }
+      setUser(currentUser)
+    })
   }, [router])
 
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-5 h-5 border-2 border-muted-foreground/30 border-t-foreground rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pb-16 md:pb-0 bg-background">
       <Navbar />
 
-      <main className="flex-1 p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
+      <main className="flex-1 px-4 py-8 md:px-8">
+        <div className="max-w-2xl mx-auto">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground mb-2">To-do List</h1>
-            <p className="text-muted-foreground">Manage your daily tasks</p>
+            <p className="text-label mb-1">Daily</p>
+            <h1 className="text-2xl font-semibold text-foreground">Tasks</h1>
           </div>
 
           <DateNavigator currentDate={currentDate} onDateChange={setCurrentDate} />

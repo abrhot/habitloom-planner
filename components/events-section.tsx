@@ -1,15 +1,12 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
-import { EventItem } from "./event-item"
 import type { Event } from "@/lib/types"
-import { getEvents, createEvent, deleteEvent } from "@/lib/data"
+import { getEvents, addEvent, deleteEvent } from "@/lib/data"
 
 interface EventsSectionProps {
   userId: string
@@ -21,43 +18,51 @@ export function EventsSection({ userId, currentDate }: EventsSectionProps) {
   const [newEventTitle, setNewEventTitle] = useState("")
   const [showInput, setShowInput] = useState(false)
 
-  useEffect(() => {
-    loadEvents()
+  const loadEvents = useCallback(async () => {
+    const data = await getEvents(userId)
+    setEvents(data.filter((e) => e.date === currentDate))
   }, [userId, currentDate])
 
-  const loadEvents = () => {
-    const data = getEvents(userId, currentDate)
-    setEvents(data)
-  }
+  useEffect(() => { loadEvents() }, [loadEvents])
 
-  const handleAddEvent = (e: React.FormEvent) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newEventTitle.trim()) {
-      createEvent(userId, currentDate, newEventTitle.trim())
+      await addEvent(userId, { title: newEventTitle.trim(), date: currentDate })
       setNewEventTitle("")
       setShowInput(false)
       loadEvents()
     }
   }
 
-  const handleDelete = (id: string) => {
-    deleteEvent(id)
+  const handleDelete = async (id: string) => {
+    await deleteEvent(id)
     loadEvents()
   }
 
   return (
-    <Card className="p-6">
+    <div className="section-box p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Events</h2>
-        <Button variant="ghost" size="icon" onClick={() => setShowInput(true)} className="h-8 w-8" disabled={showInput}>
+        <h2 className="text-base font-semibold">Events</h2>
+        <Button variant="ghost" size="icon" onClick={() => setShowInput(true)} className="h-8 w-8 btn-press" disabled={showInput}>
           <Plus className="h-4 w-4" />
-          <span className="sr-only">Add event</span>
         </Button>
       </div>
 
       <div className="space-y-2">
         {events.map((event) => (
-          <EventItem key={event.id} event={event} onDelete={handleDelete} />
+          <div key={event.id} className="row-hover flex items-center justify-between px-2 py-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: event.color || "#334155" }} />
+              <span className="text-sm text-foreground">{event.title}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDelete(event.id)}
+              className="h-6 w-6 text-muted-foreground hover:text-destructive btn-press"
+            />
+          </div>
         ))}
 
         {showInput && (
@@ -68,30 +73,21 @@ export function EventsSection({ userId, currentDate }: EventsSectionProps) {
               onChange={(e) => setNewEventTitle(e.target.value)}
               placeholder="Add an event..."
               autoFocus
-              onBlur={() => {
-                if (!newEventTitle.trim()) {
-                  setShowInput(false)
-                }
-              }}
+              onBlur={() => { if (!newEventTitle.trim()) setShowInput(false) }}
             />
-            <Button type="submit" size="sm">
-              Add
-            </Button>
+            <Button type="submit" size="sm" className="btn-press">Add</Button>
           </form>
         )}
 
         {events.length === 0 && !showInput && (
-          <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground mb-4 text-pretty">
-              No events scheduled. Add an event to your calendar.
-            </p>
-            <Button onClick={() => setShowInput(true)} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add event
+          <div className="text-center py-6">
+            <p className="text-sm text-muted-foreground mb-4">No events for this day.</p>
+            <Button onClick={() => setShowInput(true)} variant="outline" size="sm" className="btn-press">
+              <Plus className="h-3.5 w-3.5 mr-1.5" />Add event
             </Button>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   )
 }
