@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, CheckSquare, Calendar, User, Sun, Moon } from "lucide-react"
+import { LayoutDashboard, CheckSquare, Calendar, User, Sun, Moon, Bot } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import { getCurrentUser } from "@/lib/auth"
@@ -24,6 +24,7 @@ export function Navbar() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/todos",     label: "Tasks",     icon: CheckSquare },
     { href: "/events",    label: "Events",    icon: Calendar },
+    { href: "/ai",        label: "AI Coach",  icon: Bot },
   ]
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
